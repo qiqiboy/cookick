@@ -1,6 +1,6 @@
 {
   "name": "cookick",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Utilities for cookie APIs",
   "author": "qiqiboy",
   "main": "dist/index.cjs.js",
@@ -94,8 +94,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://qiqiboy@github.com/qiqiboy/cookie-fish.git"
+    "url": "https://qiqiboy@github.com/qiqiboy/cookick.git"
   },
+  "keywords": [
+    "cookie",
+    "browser-cookie",
+    "typescript",
+    "cookie-utilities",
+    "cookie-lib",
+    "cookie-tool"
+  ],
   "dependencies": {},
   "devDependencies": {
     "@babel/cli": "7.7.4",

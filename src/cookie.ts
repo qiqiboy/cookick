@@ -3,7 +3,7 @@ import { parse, serialize, CookieOptions } from './utils';
 const defaultOptions: CookieOptions = {};
 
 export function getCookie(name: string) {
-    const cookies = parse(typeof document === 'object' ? document.cookie || '' : '');
+    const cookies = getAllCookies();
 
     return cookies[name];
 }
@@ -25,7 +25,7 @@ export function delCookie(name: string, options?: Pick<CookieOptions, 'path' | '
 }
 
 export function getAllCookies() {
-    return parse(document.cookie);
+    return parse(typeof document === 'object' ? document.cookie || '' : '');
 }
 
 export function setDefault(options: CookieOptions) {

@@ -217,7 +217,7 @@ function getAbsolute(path) {
 
 var defaultOptions = {};
 function getCookie(name) {
-  var cookies = parse(typeof document === 'object' ? document.cookie || '' : '');
+  var cookies = getAllCookies();
   return cookies[name];
 }
 function setCookie(name, val, options) {
@@ -231,7 +231,7 @@ function delCookie(name, options) {
   }));
 }
 function getAllCookies() {
-  return parse(document.cookie);
+  return parse(typeof document === 'object' ? document.cookie || '' : '');
 }
 function setDefault(options) {
   return Object.assign(defaultOptions, options);
