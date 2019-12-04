@@ -2,11 +2,26 @@
 
 A simple utilities for browser cookies APIs
 
+<!-- vim-markdown-toc GFM -->
+
+* [为什么](#为什么)
+* [安装](#安装)
+* [如何使用](#如何使用)
+    - [`getCookie`](#getcookie)
+    - [`setCookie`](#setcookie)
+    - [`delCookie`](#delcookie)
+    - [`getAllCookies`](#getallcookies)
+* [参考文档](#参考文档)
+    - [document.cookie MDN 规范说明](#documentcookie-mdn-规范说明)
+    - [`maxAge` `sameSite`等新属性的兼容性](#maxage-samesite等新属性的兼容性)
+
+<!-- vim-markdown-toc -->
+
 ## 为什么
 
-已经有非常多的cookie相关工具了，设置多年以前，在我初次接触 js 学习之处，也折腾过 [`COOKIE`](https://github.com/qiqiboy/COOKIE) 这么个小玩意儿。
+已经有非常多的 cookie 相关工具了，设置多年以前，在我初次接触 js 学习之处，也折腾过 [`COOKIE`](https://github.com/qiqiboy/COOKIE) 这么个小玩意儿。
 
-但是当我现在需要一个足够简单（现代web开发中，有着更多强大、丰富的本地存储方案，js对于cookie的依赖越来越少）、支持标准的cookie工具时，我发现目前我能找到的各类cookie库（例如 `js-cookie`、`jquery-cookie`甚至还有`react-cookie`？？？）都或多或少存在一些问题，有些破坏了标准，有些不支持较新的标准，有些是过度设计，过于繁重（[`COOKIE`](https://github.com/qiqiboy/COOKIE)就是过度设计了）。
+但是当我现在需要一个足够简单（现代 web 开发中，有着更多强大、丰富的本地存储方案，js 对于 cookie 的依赖越来越少）、支持标准的 cookie 工具时，我发现目前我能找到的各类 cookie 库（例如 `js-cookie`、`jquery-cookie`甚至还有`react-cookie`？？？）都或多或少存在一些问题，有些破坏了标准，有些不支持较新的标准，有些是过度设计，过于繁重（[`COOKIE`](https://github.com/qiqiboy/COOKIE)就是过度设计了）。
 
 而直到我发现了 [jshttp/cookie](https://github.com/jshttp/cookie) 这个标准库，虽然其是针对 `HTTP cookies` 规范定制，但是可以几乎完整适用于浏览器端。所以我基于该库做了稍微的修改定制，也就有了现在这个 `cookick`（由 `cookie` 和 `kick` 组合而来）
 
