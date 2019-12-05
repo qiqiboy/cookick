@@ -2,15 +2,27 @@
 
 A simple utilities for browser cookies APIs
 
+[![npm](https://img.shields.io/npm/v/cookick.svg?style=flat)](https://npm.im/cookick)
+[![definitionTypes](https://img.shields.io/npm/types/cookick.svg)](https://github.com/qiqiboy/cookick/blob/master/index.d.ts)
+[![gzip](http://img.badgesize.io/https://unpkg.com/cookick/dist/cookick.umd.production.js?compression=gzip&color=green)](https://npm.im/cookick)
+[![download](https://img.shields.io/npm/dm/cookick.svg)](https://npm.im/cookick)
+[![issues](https://img.shields.io/github/issues/qiqiboy/cookick.svg)](https://github.com/qiqiboy/cookick/issues)
+[![license](https://img.shields.io/github/license/qiqiboy/cookick.svg)](https://github.com/qiqiboy/cookick/blob/master/LICENSE)
+[![github](https://img.shields.io/github/last-commit/qiqiboy/cookick.svg)](https://github.com/qiqiboy/cookick)
+[![github](https://img.shields.io/github/commit-activity/m/qiqiboy/cookick.svg)](https://github.com/qiqiboy/cookick/commits/master)
+[![github](https://img.shields.io/github/stars/qiqiboy/cookick.svg?style=social)](https://github.com/qiqiboy/cookick)
+
 <!-- vim-markdown-toc GFM -->
 
 * [为什么](#为什么)
 * [安装](#安装)
+    - [运行环境要求](#运行环境要求)
 * [如何使用](#如何使用)
     - [`getCookie`](#getcookie)
     - [`setCookie`](#setcookie)
     - [`delCookie`](#delcookie)
     - [`getAllCookies`](#getallcookies)
+    - [`setDefault`](#setdefault)
 * [参考文档](#参考文档)
     - [document.cookie MDN 规范说明](#documentcookie-mdn-规范说明)
     - [`maxAge` `sameSite`等新属性的兼容性](#maxage-samesite等新属性的兼容性)
@@ -37,6 +49,8 @@ A simple utilities for browser cookies APIs
 
 ## 安装
 
+[![cookick](https://nodei.co/npm/cookick.png?compact=true)](https://npm.im/cookick)
+
 ```bash
 // use npm
 $ npm install cookick --save
@@ -46,6 +60,16 @@ $ yarn add cookick
 ```
 
 **注意**：`cookick`也提供了`umd`格式的包，你可以在页面中引入代码文件后 `<script src="/YOUR_FILES/cookick.umd.production.js" />`，直接通过`window.cookick`调用。
+
+### 运行环境要求
+
+`cookick`采用`TypeScript`开发，并用`rollup`和`babel`进行构建成 ES5 代码后发布。要保证`cookick`在所有平台都能正常运行，请确保你的运行环境中支持以下必要条件：
+
+-   `Object.assign` `IE*`要求
+-   `Object.defineProperty` `< IE9`要求
+-   `Object.freeze` `< IE9`要求
+
+> 注：在`create-react-app`或者`vue-cli`构建的项目中，都是可以安全运行`cookick`的。
 
 ## 如何使用
 
@@ -71,8 +95,8 @@ getCookie('foo'); // 获取名称为 foo 的cookie
 interface CookieOptions {
     path?: string;
     domain?: string;
-    expires?: Date;
-    maxAge?: number;
+    expires?: Date; // 必须是Date对象
+    maxAge?: number; // 整数，表示maxAge秒后过期。建议总是使用maxAge，不要使用expires。maxAge和expires如果同时存在，会忽略expires参数
     httpOnly?: boolean;
     secure?: boolean;
     sameSite?: boolean | 'lax' | 'strict' | 'none';
@@ -148,6 +172,26 @@ declare function getAllCookies(): {
 import { getAllCookies } from 'cookick';
 
 getAllCookies(); // 解析所有的cookie为一个object对象
+```
+
+### `setDefault`
+
+设置默认参数
+
+```typescript
+declare function setDefault(options: CookieOptions): CookieOptions;
+```
+
+使用示例：
+
+```typescript
+import { setDefault } from 'cookick';
+
+// 在调用 setCookie 没有传递path、domain情况下，会总是将cookie根据默认参数进行设置
+setDefault({
+    path: '/basename',
+    domain: '.root.domain'
+});
 ```
 
 ## 参考文档

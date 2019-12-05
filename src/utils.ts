@@ -156,7 +156,7 @@ export function serialize(name: string, val: number | string, options?: CookieOp
     }
 
     if (opt.sameSite) {
-        var sameSite = typeof opt.sameSite === 'string' ? opt.sameSite.toLowerCase() : opt.sameSite;
+        const sameSite = typeof opt.sameSite === 'string' ? opt.sameSite.toLowerCase() : opt.sameSite;
 
         switch (sameSite) {
             case true:
