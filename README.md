@@ -59,7 +59,18 @@ $ npm install cookick --save
 $ yarn add cookick
 ```
 
-**注意**：`cookick`也提供了`umd`格式的包，你可以在页面中引入代码文件后 `<script src="/YOUR_FILES/cookick.umd.production.js" />`，直接通过`window.cookick`调用。
+**注意**：`cookick`也提供了`umd`格式的包，你可以将`cookick`的`umd`包传到服务器上，然后通过`script`标签在页面中引入，直接通过`window.cookick`调用。
+
+```html
+<!-- from self hosted cdn -->
+<script src="{{ YOUR_CDN_URL }}/cookick.umd.production.js"></script>
+
+<!-- from unpkg -->
+<script src="https://unpkg.com/cookick/dist/cookick.umd.production.js"></script>
+
+<!-- from jsDelivr -->
+<script src="https://cdn.jsdelivr.net/npm/cookick/dist/cookick.umd.production.js"></script>
+```
 
 ### 运行环境要求
 
