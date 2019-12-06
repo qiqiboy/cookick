@@ -96,7 +96,7 @@ export interface CookieOptions {
 }
 
 export function serialize(name: string, val: number | string, options?: CookieOptions) {
-    const opt = options || {};
+    const opt: CookieOptions = { ...options };
     const enc = opt.encode || encode;
 
     if (typeof enc !== 'function') {
@@ -120,7 +120,12 @@ export function serialize(name: string, val: number | string, options?: CookieOp
 
         if (isNaN(maxAge)) throw new Error('maxAge should be a Number');
 
-        str += '; max-age=' + Math.floor(maxAge);
+        const expiresDate = new Date();
+
+        expiresDate.setTime(+expiresDate + maxAge * 1000);
+        opt.expires = expiresDate;
+
+        // str += '; max-age=' + Math.floor(maxAge);
     }
 
     if (opt.domain) {
@@ -137,7 +142,9 @@ export function serialize(name: string, val: number | string, options?: CookieOp
         }
     }
 
-    str += '; path=' + (opt.path ? getAbsolute(opt.path) : '/');
+    if (opt.path !== '') {
+        str += '; path=' + (opt.path ? getAbsolute(opt.path) : '/');
+    }
 
     if (opt.expires) {
         if (typeof opt.expires.toUTCString !== 'function') {

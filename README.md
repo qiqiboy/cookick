@@ -125,7 +125,7 @@ setCookie('foo', 'bar', {
     domain: 'cookie.com'
 });
 
-// 设置过期时间，不需要兼容ie6/7情况下，建议使用maxAge参数: https://javascript.info/cookie#expires-max-age
+// 设置过期时间，建议使用maxAge参数，设置过期秒数: https://javascript.info/cookie#expires-max-age
 setCookie('foo', 'bar', {
     maxAge: 60 * 60 * 24 * 7
 });

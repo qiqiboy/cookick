@@ -140,7 +140,8 @@
    */
 
   function serialize(name, val, options) {
-    var opt = options || {};
+    var opt = _objectSpread2({}, options);
+
     var enc = opt.encode || encode;
 
     if (typeof enc !== 'function') {
@@ -162,7 +163,9 @@
     if (!isNone(opt.maxAge)) {
       var maxAge = opt.maxAge - 0;
       if (isNaN(maxAge)) throw new Error('maxAge should be a Number');
-      str += '; max-age=' + Math.floor(maxAge);
+      var expiresDate = new Date();
+      expiresDate.setTime(+expiresDate + maxAge * 1000);
+      opt.expires = expiresDate; // str += '; max-age=' + Math.floor(maxAge);
     }
 
     if (opt.domain) {
@@ -179,7 +182,9 @@
       }
     }
 
-    str += '; path=' + (opt.path ? getAbsolute(opt.path) : '/');
+    if (opt.path !== '') {
+      str += '; path=' + (opt.path ? getAbsolute(opt.path) : '/');
+    }
 
     if (opt.expires) {
       if (typeof opt.expires.toUTCString !== 'function') {
