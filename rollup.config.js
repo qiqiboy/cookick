@@ -141,7 +141,7 @@ function createConfig(env, module) {
                             corejs: false,
                             helpers: true,
                             regenerator: true,
-                            useESModules: true,
+                            useESModules: module === 'esm',
                             absoluteRuntime: false
                         }
                     ],

@@ -19,6 +19,8 @@
     return obj;
   }
 
+  var defineProperty = _defineProperty;
+
   function ownKeys(object, enumerableOnly) {
     var keys = Object.keys(object);
 
@@ -39,7 +41,7 @@
 
       if (i % 2) {
         ownKeys(Object(source), true).forEach(function (key) {
-          _defineProperty(target, key, source[key]);
+          defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
@@ -52,6 +54,8 @@
 
     return target;
   }
+
+  var objectSpread2 = _objectSpread2;
 
   /*!
    * Utilities for document.cookie, inherit from @jshttp/cookie
@@ -140,7 +144,7 @@
    */
 
   function serialize(name, val, options) {
-    var opt = _objectSpread2({}, options);
+    var opt = objectSpread2({}, options);
 
     var enc = opt.encode || encode;
 
@@ -274,11 +278,11 @@
   }
   function setCookie(name, val, options) {
     if (typeof document === 'object') {
-      document.cookie = serialize(name, val, _objectSpread2({}, defaultOptions, {}, options));
+      document.cookie = serialize(name, val, objectSpread2({}, defaultOptions, {}, options));
     }
   }
   function delCookie(name, options) {
-    setCookie(name, '', _objectSpread2({}, options, {
+    setCookie(name, '', objectSpread2({}, options, {
       expires: new Date(1970)
     }));
   }

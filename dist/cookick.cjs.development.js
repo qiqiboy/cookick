@@ -4,7 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var _objectSpread = _interopDefault(require('@babel/runtime/helpers/esm/objectSpread2'));
+var _objectSpread = _interopDefault(require('@babel/runtime/helpers/objectSpread2'));
 
 /*!
  * Utilities for document.cookie, inherit from @jshttp/cookie
