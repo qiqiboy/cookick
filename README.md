@@ -22,7 +22,9 @@ A simple utilities for browser cookies APIs
     - [`setCookie`](#setcookie)
     - [`delCookie`](#delcookie)
     - [`getAllCookies`](#getallcookies)
+    - [`serialize`](#serialize)
     - [`setDefault`](#setdefault)
+    - [`updateCookieSource`](#updatecookiesource)
 * [参考文档](#参考文档)
     - [document.cookie MDN 规范说明](#documentcookie-mdn-规范说明)
     - [`maxAge` `sameSite`等新属性的兼容性](#maxage-samesite等新属性的兼容性)
@@ -36,16 +38,6 @@ A simple utilities for browser cookies APIs
 但是当我现在需要一个足够简单（现代 web 开发中，有着更多强大、丰富的本地存储方案，js 对于 cookie 的依赖越来越少）、支持标准的 cookie 工具时，我发现目前我能找到的各类 cookie 库（例如 `js-cookie`、`jquery-cookie`甚至还有`react-cookie`？？？）都或多或少存在一些问题，有些破坏了标准，有些不支持较新的标准，有些是过度设计，过于繁重（[`COOKIE`](https://github.com/qiqiboy/COOKIE)就是过度设计了）。
 
 而直到我发现了 [jshttp/cookie](https://github.com/jshttp/cookie) 这个标准库，虽然其是针对 `HTTP cookies` 规范定制，但是可以几乎完整适用于浏览器端。所以我基于该库做了稍微的修改定制，也就有了现在这个 `cookick`（名字由 `cookie` 和 `kick` 组合而来）
-
-**补充与[`universal-cookie`](https://github.com/reactivestack/cookies/tree/master/packages/universal-cookie)的对比:**
-
-> `universal-cookie`是我阅读`react-cookie`时发现的这个库（当然，我认为任何 react/vue-cookie 这种库都不应该存在，作者都是被驴踢了脑袋），非常意外的发现其实现思路与`cookick`惊人一致。如果我早两个小时前发现这个库，cookick 就不会产生了。但是我也在阅读了 `universal-cookie`的源码后，基于以下的几点不同，我还是倾向于 `cookick` 是一个更好的实现
-
--   `universal-cookie`与`cookick`都是基于`jsHTTP/cookie`实现，所以两者对于 cookie 的操作都是一致的，并且操作 cookie 的方式、对标准的支持也都是一致的
--   `cookick`对`path`做了更多支持优化，默认为根路径: `/`，也支持相对路径；`universal-cookie` 则是默认行为，即当前页面路径。经验来看，默认`/`还是更符合通用场景的
--   `cookick` 更加适合 `ES Module` 规范下的子导出使用，因为其方法名都是明确的 cookie 相关命名，例如`getCookie` `setCookie`等；而`universal-cookie`这是简洁的`get` `set`等名称，只适合与对象访问式调用
--   `universal-cookie`考虑了服务端调用，所以其使用需要先初始化后调用、还支持绑定 cookie 变动监听；`cookick`没有这些考虑，并且认为服务端使用应当直接使用`jsHTTP/cookie`，而 cookie 变动监听属于过度设计，在 cookie 在 web 开发中日渐式微的状况下，这种设计“纯属想多了”
--   `universal-cookie` 名字很长，`cookick`名字较短
 
 ## 安装
 
@@ -82,11 +74,15 @@ $ yarn add cookick
 
 > 注：在`create-react-app`或者`vue-cli`构建的项目中，都是可以安全运行`cookick`的。
 
+> `cookick`也可以在服务端中运行，但是不推荐。建议优先选择其它与服务端框架结合更紧密的其它 cookie 方法，例如 Express.js 推荐的 `cookie-parser`。
+
 ## 如何使用
 
 `cookick`提供了一组方法用于获取或者设置 cookie。
 
 ### `getCookie`
+
+> 服务端在调用该方法前，需要先调用 [`updateCookieSource`](#updatecookiesource) 设置 cookie 解析来源。
 
 ```typescript
 declare function getCookie(name: string): string | undefined;
@@ -102,6 +98,8 @@ getCookie('foo'); // 获取名称为 foo 的cookie
 
 ### `setCookie`
 
+> 仅在浏览器端生效，服务端应当利用其返回值自行设置响应头来处理 cookie。
+
 ```typescript
 interface CookieOptions {
     path?: string;
@@ -113,7 +111,7 @@ interface CookieOptions {
     sameSite?: boolean | 'lax' | 'strict' | 'none';
 }
 
-declare function setCookie(name: string, val: string | number, options?: CookieOptions): void;
+declare function setCookie(name: string, val: string | number, options?: CookieOptions): string;
 ```
 
 使用示例：
@@ -148,12 +146,23 @@ setCookie('foo', 'bar', {
     httpOnly: true,
     sameSite: 'strict'
 });
+
+/*=================服务端==================*/
+req.setHeader('set-cookie', setCookie('foo', 'bar'));
 ```
 
 ### `delCookie`
 
+> 仅在浏览器端生效，服务端应当利用其返回值自行设置响应头来处理 cookie。
+
 ```typescript
-declare function delCookie(name: string, options?: CookieOptions): void;
+declare function delCookie(
+    name: string,
+    options?: {
+        path?: string;
+        domain?: string;
+    }
+): string;
 ```
 
 使用示例：
@@ -167,9 +176,14 @@ delCookie('foo'); // 删除名称为 foo 的cookie
 delCookie('foo', {
     path: '/sub'
 });
+
+/*=================服务端==================*/
+req.setHeader('set-cookie', delCookie('foo'));
 ```
 
 ### `getAllCookies`
+
+> 服务端在调用该方法前，需要先调用 [`updateCookieSource`](#updatecookiesource) 设置 cookie 解析来源。
 
 ```typescript
 declare function getAllCookies(): {
@@ -183,6 +197,26 @@ declare function getAllCookies(): {
 import { getAllCookies } from 'cookick';
 
 getAllCookies(); // 解析所有的cookie为一个object对象
+```
+
+### `serialize`
+
+```typescript
+declare function serialize(name: string, val: string | number, options?: CookieOptions): string;
+```
+
+序列化一个新的 cookie 为字符串，你可以将其用于在服务端或者浏览器端设置 cookie：
+
+```typescript
+const newCookieStr = serialize('foo', 'bar', {
+    path: '/'
+});
+
+// 浏览器端
+document.cookie = newCookieStr;
+
+// 服务端
+response.setHeader('set-cookie', newCookieStr);
 ```
 
 ### `setDefault`
@@ -202,6 +236,20 @@ import { setDefault } from 'cookick';
 setDefault({
     path: '/basename',
     domain: '.root.domain'
+});
+```
+
+### `updateCookieSource`
+
+该方法建议仅在服务端调用，在调用`getCookie` `getAllCookies`等方法前，通过该方法将服务端请求的 cookie 字符串更新到`cookick`：
+
+```typescript
+const { updateCookieSource, getCookie } = require('cookick');
+
+app.get('/', (req, res) => {
+    udpateCookieSource(req.headers.cookie);
+
+    console.log(getCookie('foo'));
 });
 ```
 

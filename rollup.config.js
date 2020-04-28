@@ -2,11 +2,10 @@ process.env.NODE_ENV = 'production';
 
 const path = require('path');
 const fs = require('fs');
-const commonjs = require('rollup-plugin-commonjs');
+const commonjs = require('@rollup/plugin-commonjs');
 const replace = require('@rollup/plugin-replace');
 const nodeResolve = require('@rollup/plugin-node-resolve');
 const babel = require('rollup-plugin-babel');
-const sourceMaps = require('rollup-plugin-sourcemaps');
 const filesize = require('rollup-plugin-filesize');
 const copy = require('rollup-plugin-copy');
 const sass = require('rollup-plugin-sass');
@@ -17,7 +16,7 @@ const pkg = require('./package.json');
  * 如果希望将某些模块代码直接构建进输出文件，可以再这里指定这些模块名称
  */
 const externalExclude = [
-    /*'@babel/runtime', 'regenerator-runtime'*/
+    // '@babel/runtime', 'regenerator-runtime'
 ];
 
 const exportName = pkg.exportName || pkg.name.split('/').slice(-1)[0];
@@ -80,6 +79,7 @@ function createConfig(env, module) {
                 extensions: ['.js', '.jsx', '.ts', '.tsx'],
                 runtimeHelpers: true,
                 babelrc: false,
+                configFile: false,
                 presets: [
                     [
                         '@babel/preset-env',
@@ -101,37 +101,11 @@ function createConfig(env, module) {
                 ],
                 plugins: [
                     'babel-plugin-macros',
-                    [
-                        '@babel/plugin-transform-destructuring',
-                        {
-                            // https://github.com/facebook/create-react-app/issues/5602
-                            loose: false,
-                            useBuiltIns: true,
-                            selectiveLoose: [
-                                'useState',
-                                'useEffect',
-                                'useContext',
-                                'useReducer',
-                                'useCallback',
-                                'useMemo',
-                                'useRef',
-                                'useImperativeHandle',
-                                'useLayoutEffect',
-                                'useDebugValue'
-                            ]
-                        }
-                    ],
                     ['@babel/plugin-proposal-decorators', { legacy: true }],
                     [
                         '@babel/plugin-proposal-class-properties',
                         {
                             loose: true
-                        }
-                    ],
-                    [
-                        '@babel/plugin-proposal-object-rest-spread',
-                        {
-                            useBuiltIns: true
                         }
                     ],
                     [
@@ -151,14 +125,15 @@ function createConfig(env, module) {
                         {
                             removeImport: true
                         }
-                    ]
+                    ],
+                    // Adds Numeric Separators
+                    require('@babel/plugin-proposal-numeric-separator').default
                 ].filter(Boolean)
             }),
             module !== 'umd' &&
                 sass({
                     output: `dist/${exportName}.css`
                 }),
-            sourceMaps(),
             isProd &&
                 terser({
                     sourcemap: true,
@@ -171,8 +146,13 @@ function createConfig(env, module) {
                 }),
             filesize(),
             copy({
-                targets: [`npm/index.${module}.js`],
-                verbose: true
+                targets: [
+                    {
+                        src: `npm/index.${module}.js`,
+                        dest: 'dist'
+                    }
+                ],
+                verbose: false
             })
         ].filter(Boolean)
     };

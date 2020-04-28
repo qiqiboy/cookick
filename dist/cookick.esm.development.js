@@ -215,25 +215,47 @@ function getAbsolute(path) {
 }
 
 var defaultOptions = {};
+var isBrowser = typeof document === 'object';
+var cookieSource = '';
+var hasSetSource = false;
 function getCookie(name) {
   var cookies = getAllCookies();
   return cookies[name];
 }
 function setCookie(name, val, options) {
-  if (typeof document === 'object') {
-    document.cookie = serialize(name, val, _objectSpread({}, defaultOptions, {}, options));
+  var cookie = serialize$1(name, val, options);
+
+  if (isBrowser) {
+    document.cookie = cookie;
   }
+
+  return cookie;
 }
 function delCookie(name, options) {
-  setCookie(name, '', _objectSpread({}, options, {
+  return setCookie(name, '', _objectSpread({}, options, {
     expires: new Date(1970)
   }));
 }
 function getAllCookies() {
-  return parse(typeof document === 'object' ? document.cookie || '' : '');
+  if (isBrowser) {
+    return parse(cookieSource || document.cookie || '');
+  }
+
+  if ( !hasSetSource) {
+    console.error("Warning: You should call 'updateCookieSource(request.cookie)' first.");
+  }
+
+  return parse(cookieSource || '');
+}
+function serialize$1(name, val, options) {
+  return serialize(name, val, _objectSpread({}, defaultOptions, {}, options));
 }
 function setDefault(options) {
   return Object.assign(defaultOptions, options);
+}
+function updateCookieSource(cookie) {
+  cookieSource = cookie;
+  hasSetSource = true;
 }
 
 var COOKIE = /*#__PURE__*/Object.freeze({
@@ -242,8 +264,10 @@ var COOKIE = /*#__PURE__*/Object.freeze({
     setCookie: setCookie,
     delCookie: delCookie,
     getAllCookies: getAllCookies,
-    setDefault: setDefault
+    serialize: serialize$1,
+    setDefault: setDefault,
+    updateCookieSource: updateCookieSource
 });
 
 export default COOKIE;
-export { delCookie, getAllCookies, getCookie, setCookie, setDefault };
+export { delCookie, getAllCookies, getCookie, serialize$1 as serialize, setCookie, setDefault, updateCookieSource };
