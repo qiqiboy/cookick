@@ -1,4 +1,6 @@
-import _objectSpread from '@babel/runtime/helpers/esm/objectSpread2';
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
 
 /*!
  * Utilities for document.cookie, inherit from @jshttp/cookie
@@ -10,9 +12,10 @@ import _objectSpread from '@babel/runtime/helpers/esm/objectSpread2';
  * Module variables.
  * @private
  */
-var decode = decodeURIComponent;
-var encode = encodeURIComponent;
-var pairSplitRegExp = /;\s*/;
+const decode = decodeURIComponent;
+const encode = encodeURIComponent;
+const pairSplitRegExp = /;\s*/;
+
 /**
  * RegExp to match field-content in RFC 7230 sec 3.2
  *
@@ -21,8 +24,8 @@ var pairSplitRegExp = /;\s*/;
  * obs-text      = %x80-FF
  */
 // eslint-disable-next-line
+const fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
 
-var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
 /**
  * Parse a cookie header.
  *
@@ -34,42 +37,39 @@ var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
  * @return {object}
  * @public
  */
-
 function parse(str) {
-  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-      _ref$decode = _ref.decode,
-      dec = _ref$decode === void 0 ? decode : _ref$decode;
-
+  let {
+    decode: dec = decode
+  } = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   if (typeof str !== 'string') {
     throw new TypeError('argument str must be a string');
   }
+  const obj = {};
+  const pairs = str.split(pairSplitRegExp);
+  for (let i = 0; i < pairs.length; i++) {
+    const pair = pairs[i];
+    let eq_idx = pair.indexOf('=');
 
-  var obj = {};
-  var pairs = str.split(pairSplitRegExp);
-
-  for (var i = 0; i < pairs.length; i++) {
-    var pair = pairs[i];
-    var eq_idx = pair.indexOf('='); // skip things that don't look like key=value
-
+    // skip things that don't look like key=value
     if (eq_idx < 0) {
       continue;
     }
+    let key = pair.substr(0, eq_idx).trim();
+    let val = pair.substr(++eq_idx, pair.length).trim();
 
-    var key = pair.substr(0, eq_idx).trim();
-    var val = pair.substr(++eq_idx, pair.length).trim(); // quoted values
-
+    // quoted values
     if ('"' === val[0]) {
       val = val.slice(1, -1);
-    } // only assign once
+    }
 
-
+    // only assign once
     if (undefined === obj[key]) {
       obj[key] = tryDecode(val, dec);
     }
   }
-
   return obj;
 }
+
 /**
  * Serialize data into a cookie header.
  *
@@ -87,95 +87,78 @@ function parse(str) {
  */
 
 function serialize(name, val, options) {
-  var opt = _objectSpread({}, options);
-
-  var enc = opt.encode || encode;
-
+  const opt = {
+    ...options
+  };
+  const enc = opt.encode || encode;
   if (typeof enc !== 'function') {
     throw new TypeError('option encode is invalid');
   }
-
   if (!fieldContentRegExp.test(name)) {
     throw new TypeError('argument name is invalid');
   }
-
-  var value = enc(val);
-
+  const value = enc(val);
   if (value && !fieldContentRegExp.test(value)) {
     throw new TypeError('argument val is invalid');
   }
-
-  var str = name + '=' + value;
-
+  let str = name + '=' + value;
   if (!isNone(opt.maxAge)) {
-    var maxAge = opt.maxAge - 0;
+    const maxAge = opt.maxAge - 0;
     if (isNaN(maxAge)) throw new Error('maxAge should be a Number');
-    var expiresDate = new Date();
+    const expiresDate = new Date();
     expiresDate.setTime(+expiresDate + maxAge * 1000);
-    opt.expires = expiresDate; // str += '; max-age=' + Math.floor(maxAge);
-  }
+    opt.expires = expiresDate;
 
+    // str += '; max-age=' + Math.floor(maxAge);
+  }
   if (opt.domain) {
     if (!fieldContentRegExp.test(opt.domain)) {
       throw new TypeError('option domain is invalid');
     }
-
     str += '; domain=' + opt.domain;
   }
-
   if (opt.path) {
     if (!fieldContentRegExp.test(opt.path)) {
       throw new TypeError('option path is invalid');
     }
   }
-
   if (opt.path !== '') {
     str += '; path=' + (opt.path ? getAbsolute(opt.path) : '/');
   }
-
   if (opt.expires) {
     if (typeof opt.expires.toUTCString !== 'function') {
       throw new TypeError('option expires is invalid');
     }
-
     str += '; expires=' + opt.expires.toUTCString();
   }
-
   if (opt.httpOnly) {
     str += '; httpOnly';
   }
-
   if (opt.secure) {
     str += '; secure';
   }
-
   if (opt.sameSite) {
-    var sameSite = typeof opt.sameSite === 'string' ? opt.sameSite.toLowerCase() : opt.sameSite;
-
+    const sameSite = typeof opt.sameSite === 'string' ? opt.sameSite.toLowerCase() : opt.sameSite;
     switch (sameSite) {
       case true:
         str += '; samesite=strict';
         break;
-
       case 'lax':
         str += '; samesite=lax';
         break;
-
       case 'strict':
         str += '; samesite=strict';
         break;
-
       case 'none':
         str += '; samesite=none';
         break;
-
       default:
         throw new TypeError('option sameSite is invalid');
     }
   }
-
   return str;
 }
+
 /**
  * Try decoding a string using a decoding function.
  *
@@ -183,7 +166,6 @@ function serialize(name, val, options) {
  * @param {function} decode
  * @private
  */
-
 function tryDecode(str, decode) {
   try {
     return decode(str);
@@ -191,83 +173,73 @@ function tryDecode(str, decode) {
     return str;
   }
 }
+
 /**
  * ensure obj is undefined or null
  */
-
-
 function isNone(obj) {
   return undefined === obj || null === obj;
 }
+
 /**
  * get absolute path
  *
  * getAbsolute('../sub') => /parent/sub
  */
-
-
 function getAbsolute(path) {
-  var a = document.createElement('a');
-  a.href = path; // @ts-ignore
+  const a = document.createElement('a');
+  a.href = path;
 
-  var uri = /^http/i.test(a.href) ? a.href : a.getAttribute('href', 4);
+  // @ts-ignore
+  const uri = /^http/i.test(a.href) ? a.href : a.getAttribute('href', 4) || '';
   return uri.split(/\/\/[^/]+/).slice(-1)[0];
 }
 
-var defaultOptions = {};
-var isBrowser = typeof document === 'object';
-var cookieSource = '';
-var hasSetSource = false;
+const defaultOptions = {};
 function getCookie(name) {
-  var cookies = getAllCookies();
+  const cookies = getAllCookies();
   return cookies[name];
 }
 function setCookie(name, val, options) {
-  var cookie = serialize$1(name, val, options);
-
-  if (isBrowser) {
-    document.cookie = cookie;
-  }
-
-  return cookie;
+  const cookie = serialize$1(name, val, options);
+  document.cookie = cookie;
 }
 function delCookie(name, options) {
-  return setCookie(name, '', _objectSpread({}, options, {
+  return setCookie(name, '', {
+    ...options,
     expires: new Date(1970)
-  }));
+  });
 }
 function getAllCookies() {
-  if (isBrowser) {
-    return parse(cookieSource || document.cookie || '');
-  }
-
-  if ( !hasSetSource) {
-    console.error("Warning: You should call 'updateCookieSource(request.cookie)' first.");
-  }
-
-  return parse(cookieSource || '');
+  return parse(document.cookie || '');
 }
 function serialize$1(name, val, options) {
-  return serialize(name, val, _objectSpread({}, defaultOptions, {}, options));
+  return serialize(name, val, {
+    ...defaultOptions,
+    ...options
+  });
 }
 function setDefault(options) {
   return Object.assign(defaultOptions, options);
 }
-function updateCookieSource(cookie) {
-  cookieSource = cookie;
-  hasSetSource = true;
+function middleware() {
+  console.error(`'middleware' can only be called in Nodejs.`);
 }
+const COOKIE = {
+  getCookie,
+  setCookie,
+  delCookie,
+  getAllCookies,
+  serialize: serialize$1,
+  setDefault,
+  middleware
+};
 
-var COOKIE = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    getCookie: getCookie,
-    setCookie: setCookie,
-    delCookie: delCookie,
-    getAllCookies: getAllCookies,
-    serialize: serialize$1,
-    setDefault: setDefault,
-    updateCookieSource: updateCookieSource
-});
-
-export default COOKIE;
-export { delCookie, getAllCookies, getCookie, serialize$1 as serialize, setCookie, setDefault, updateCookieSource };
+exports.default = COOKIE;
+exports.delCookie = delCookie;
+exports.getAllCookies = getAllCookies;
+exports.getCookie = getCookie;
+exports.middleware = middleware;
+exports.serialize = serialize$1;
+exports.setCookie = setCookie;
+exports.setDefault = setDefault;

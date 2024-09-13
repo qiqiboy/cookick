@@ -24,7 +24,6 @@ A simple utilities for browser cookies APIs
     - [`getAllCookies`](#getallcookies)
     - [`serialize`](#serialize)
     - [`setDefault`](#setdefault)
-    - [`updateCookieSource`](#updatecookiesource)
 * [参考文档](#参考文档)
     - [document.cookie MDN 规范说明](#documentcookie-mdn-规范说明)
     - [`maxAge` `sameSite`等新属性的兼容性](#maxage-samesite等新属性的兼容性)
@@ -66,15 +65,13 @@ $ yarn add cookick
 
 ### 运行环境要求
 
-`cookick`采用`TypeScript`开发，并用`rollup`和`babel`进行构建成 ES5 代码后发布。要保证`cookick`在所有平台都能正常运行，请确保你的运行环境中支持以下必要条件：
+`cookick`支持在浏览器端和服务器端(express+Nodejs)运行。如果要在服务器端运行，需要在调用前挂载 middleware：
 
--   `Object.assign` `IE*`要求
--   `Object.defineProperty` `< IE9`要求
--   `Object.freeze` `< IE9`要求
+```typescript
+import { middleware } from 'cookick';
 
-> 注：在`create-react-app`或者`vue-cli`构建的项目中，都是可以安全运行`cookick`的。
-
-> `cookick`也可以在服务端中运行，但是不推荐。建议优先选择其它与服务端框架结合更紧密的其它 cookie 方法，例如 Express.js 推荐的 `cookie-parser`。
+app.use(middleware);
+```
 
 ## 如何使用
 
@@ -111,7 +108,7 @@ interface CookieOptions {
     sameSite?: boolean | 'lax' | 'strict' | 'none';
 }
 
-declare function setCookie(name: string, val: string | number, options?: CookieOptions): string;
+declare function setCookie(name: string, val: string | number, options?: CookieOptions): void;
 ```
 
 使用示例：
@@ -146,9 +143,6 @@ setCookie('foo', 'bar', {
     httpOnly: true,
     sameSite: 'strict'
 });
-
-/*=================服务端==================*/
-req.setHeader('set-cookie', setCookie('foo', 'bar'));
 ```
 
 ### `delCookie`
@@ -162,7 +156,7 @@ declare function delCookie(
         path?: string;
         domain?: string;
     }
-): string;
+): void;
 ```
 
 使用示例：
@@ -236,20 +230,6 @@ import { setDefault } from 'cookick';
 setDefault({
     path: '/basename',
     domain: '.root.domain'
-});
-```
-
-### `updateCookieSource`
-
-该方法建议仅在服务端调用，在调用`getCookie` `getAllCookies`等方法前，通过该方法将服务端请求的 cookie 字符串更新到`cookick`：
-
-```typescript
-const { updateCookieSource, getCookie } = require('cookick');
-
-app.get('/', (req, res) => {
-    udpateCookieSource(req.headers.cookie);
-
-    console.log(getCookie('foo'));
 });
 ```
 

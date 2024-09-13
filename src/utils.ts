@@ -218,7 +218,7 @@ function getAbsolute(path) {
     a.href = path;
 
     // @ts-ignore
-    const uri = /^http/i.test(a.href) ? a.href : a.getAttribute('href', 4);
+    const uri = /^http/i.test(a.href) ? a.href : a.getAttribute('href', 4) || '';
 
     return uri.split(/\/\/[^/]+/).slice(-1)[0];
 }
