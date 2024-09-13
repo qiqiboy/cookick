@@ -19,9 +19,21 @@ export function setCookie(name: string, val: string | number, options?: CookieOp
 
     if (res) {
         if (typeof res.cookie === 'function') {
+            /**
+             * The unit of maxAge in the specification is seconds,
+             * but in Express' cookie() method this is milliseconds
+             */
+            const fixMaxAge =
+                typeof options?.maxAge === 'number'
+                    ? {
+                          maxAge: options.maxAge * 1000
+                      }
+                    : undefined;
+
             res.cookie(name, val, {
                 ...defaultOptions,
-                ...options
+                ...options,
+                ...fixMaxAge
             });
 
             if (req?.cookies) {
