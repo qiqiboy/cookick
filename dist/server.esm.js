@@ -201,21 +201,50 @@ function getCookie(name) {
 }
 function setCookie(name, val, options) {
   const {
+    req,
     res
   } = asyncLocalStorage.getStore() || {};
-  res?.cookie(name, val, options || {});
+  if (res) {
+    if (typeof res.cookie === 'function') {
+      res.cookie(name, val, {
+        ...defaultOptions,
+        ...options
+      });
+      if (req?.cookies) {
+        req.cookies[name] = val;
+      }
+    } else {
+      res.setHeader('Set-Cookie', serialize$1(name, val, {
+        ...defaultOptions,
+        ...options
+      }));
+    }
+  }
 }
 function delCookie(name, options) {
-  return setCookie(name, '', {
-    ...options,
-    expires: new Date(1970)
-  });
+  const {
+    res
+  } = asyncLocalStorage.getStore() || {};
+  if (res) {
+    if (typeof res.clearCookie === 'function') {
+      res.clearCookie(name, {
+        ...defaultOptions,
+        ...options
+      });
+    } else {
+      res.setHeader('Set-Cookie', serialize$1(name, '', {
+        ...defaultOptions,
+        ...options,
+        expires: new Date(1970)
+      }));
+    }
+  }
 }
 function getAllCookies() {
   const {
     req
   } = asyncLocalStorage.getStore() || {};
-  return parse(req?.get('Cookie') || '');
+  return req?.cookies || parse(req?.get('cookie') || '');
 }
 function serialize$1(name, val, options) {
   return serialize(name, val, {

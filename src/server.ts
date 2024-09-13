@@ -15,22 +15,56 @@ export function getCookie(name: string) {
 }
 
 export function setCookie(name: string, val: string | number, options?: CookieOptions) {
-    const { res } = asyncLocalStorage.getStore() || {};
+    const { req, res } = asyncLocalStorage.getStore() || {};
 
-    res?.cookie(name, val, options || {});
+    if (res) {
+        if (typeof res.cookie === 'function') {
+            res.cookie(name, val, {
+                ...defaultOptions,
+                ...options
+            });
+
+            if (req?.cookies) {
+                req.cookies[name] = val;
+            }
+        } else {
+            res.setHeader(
+                'Set-Cookie',
+                serialize(name, val, {
+                    ...defaultOptions,
+                    ...options
+                })
+            );
+        }
+    }
 }
 
 export function delCookie(name: string, options?: Pick<CookieOptions, 'path' | 'domain'>) {
-    return setCookie(name, '', {
-        ...options,
-        expires: new Date(1970)
-    });
+    const { res } = asyncLocalStorage.getStore() || {};
+
+    if (res) {
+        if (typeof res.clearCookie === 'function') {
+            res.clearCookie(name, {
+                ...defaultOptions,
+                ...options
+            });
+        } else {
+            res.setHeader(
+                'Set-Cookie',
+                serialize(name, '', {
+                    ...defaultOptions,
+                    ...options,
+                    expires: new Date(1970)
+                })
+            );
+        }
+    }
 }
 
-export function getAllCookies() {
+export function getAllCookies(): Record<string, any> {
     const { req } = asyncLocalStorage.getStore() || {};
 
-    return parse(req?.get('Cookie') || '');
+    return req?.cookies || parse(req?.get('cookie') || '');
 }
 
 export function serialize(name: string, val: string | number, options?: CookieOptions) {
