@@ -54,13 +54,13 @@ $ yarn add cookick
 
 ```html
 <!-- from self hosted cdn -->
-<script src="{{ YOUR_CDN_URL }}/cookick.umd.production.js"></script>
+<script src="{{ YOUR_CDN_URL }}/browser.umd.js"></script>
 
 <!-- from unpkg -->
-<script src="https://unpkg.com/cookick/dist/cookick.umd.production.js"></script>
+<script src="https://unpkg.com/cookick/dist/browser.umd.js"></script>
 
 <!-- from jsDelivr -->
-<script src="https://cdn.jsdelivr.net/npm/cookick/dist/cookick.umd.production.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cookick/dist/browser.umd.js"></script>
 ```
 
 ### 运行环境要求
@@ -79,8 +79,6 @@ app.use(middleware);
 
 ### `getCookie`
 
-> 服务端在调用该方法前，需要先调用 [`updateCookieSource`](#updatecookiesource) 设置 cookie 解析来源。
-
 ```typescript
 declare function getCookie(name: string): string | undefined;
 ```
@@ -94,8 +92,6 @@ getCookie('foo'); // 获取名称为 foo 的cookie
 ```
 
 ### `setCookie`
-
-> 仅在浏览器端生效，服务端应当利用其返回值自行设置响应头来处理 cookie。
 
 ```typescript
 interface CookieOptions {
@@ -147,8 +143,6 @@ setCookie('foo', 'bar', {
 
 ### `delCookie`
 
-> 仅在浏览器端生效，服务端应当利用其返回值自行设置响应头来处理 cookie。
-
 ```typescript
 declare function delCookie(
     name: string,
@@ -176,8 +170,6 @@ req.setHeader('set-cookie', delCookie('foo'));
 ```
 
 ### `getAllCookies`
-
-> 服务端在调用该方法前，需要先调用 [`updateCookieSource`](#updatecookiesource) 设置 cookie 解析来源。
 
 ```typescript
 declare function getAllCookies(): {
