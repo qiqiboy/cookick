@@ -73,6 +73,8 @@ import { middleware } from 'cookick';
 app.use(middleware);
 ```
 
+nodejs需要支持`AsyncLocalStorage`，最低版本要求为`v12.17.0`。
+
 ## 如何使用
 
 `cookick`提供了一组方法用于获取或者设置 cookie。
@@ -164,9 +166,6 @@ delCookie('foo'); // 删除名称为 foo 的cookie
 delCookie('foo', {
     path: '/sub'
 });
-
-/*=================服务端==================*/
-req.setHeader('set-cookie', delCookie('foo'));
 ```
 
 ### `getAllCookies`

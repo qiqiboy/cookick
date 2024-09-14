@@ -5,7 +5,6 @@ const commonjs = require('@rollup/plugin-commonjs');
 const replace = require('@rollup/plugin-replace');
 const nodeResolve = require('@rollup/plugin-node-resolve');
 const babel = require('rollup-plugin-babel');
-const copy = require('rollup-plugin-copy');
 const pkg = require('./package.json');
 
 /**
@@ -95,18 +94,10 @@ function createConfig(entry, module) {
                     ['@babel/preset-typescript']
                 ],
                 plugins: [
-                    'babel-plugin-macros',
-                    ['@babel/plugin-proposal-decorators', { legacy: true }],
-                    [
-                        '@babel/plugin-proposal-class-properties',
-                        {
-                            loose: true
-                        }
-                    ],
                     [
                         '@babel/plugin-transform-runtime',
                         {
-                            version: require('@babel/helpers/package.json').version,
+                            version: require('@babel/runtime/package.json').version,
                             corejs: false,
                             helpers: true,
                             regenerator: true,
@@ -117,15 +108,6 @@ function createConfig(entry, module) {
                     // Adds Numeric Separators
                     require('@babel/plugin-proposal-numeric-separator').default
                 ].filter(Boolean)
-            }),
-            copy({
-                targets: [
-                    {
-                        src: `npm/${entry}.${module}.js`,
-                        dest: 'dist'
-                    }
-                ],
-                verbose: false
             })
         ].filter(Boolean)
     };
