@@ -52,7 +52,7 @@ export function setCookie(name: string, val: string | number, options?: CookieOp
 }
 
 export function delCookie(name: string, options?: Pick<CookieOptions, 'path' | 'domain'>) {
-    const { res } = asyncLocalStorage.getStore() || {};
+    const { req, res } = asyncLocalStorage.getStore() || {};
 
     if (res) {
         if (typeof res.clearCookie === 'function') {
@@ -60,6 +60,10 @@ export function delCookie(name: string, options?: Pick<CookieOptions, 'path' | '
                 ...defaultOptions,
                 ...options
             });
+
+            if (req?.cookies) {
+                req.cookies[name] = undefined;
+            }
         } else {
             res.setHeader(
                 'Set-Cookie',
@@ -111,3 +115,10 @@ const COOKIE = {
 };
 
 export default COOKIE;
+
+declare global {
+    const cookick: typeof COOKIE;
+    interface Window {
+        cookick: typeof COOKIE;
+    }
+}

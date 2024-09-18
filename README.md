@@ -65,7 +65,7 @@ $ yarn add cookick
 
 ### 运行环境要求
 
-`cookick`支持在浏览器端和服务器端(express+Nodejs)运行。如果要在服务器端运行，需要在调用前挂载 middleware：
+`cookick`支持在浏览器端和服务器端(`express`+`Nodejs`)运行。如果要在服务器端运行，需要在调用前挂载 middleware：
 
 ```typescript
 import { middleware } from 'cookick';
@@ -73,11 +73,11 @@ import { middleware } from 'cookick';
 app.use(middleware);
 ```
 
-nodejs需要支持`AsyncLocalStorage`，最低版本要求为`v12.17.0`。
+nodejs 需要支持`AsyncLocalStorage`，最低版本要求为`v12.17.0`。
 
 ## 如何使用
 
-`cookick`提供了一组方法用于获取或者设置 cookie。
+`cookick`提供了一组方法用于获取或者设置 cookie。浏览器和服务器端调用签名均完全一致，**如果是 SSR，在组件中也可以放心调用**。
 
 ### `getCookie`
 

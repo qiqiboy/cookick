@@ -231,6 +231,7 @@ function setCookie(name, val, options) {
 }
 function delCookie(name, options) {
   const {
+    req,
     res
   } = asyncLocalStorage.getStore() || {};
   if (res) {
@@ -239,6 +240,9 @@ function delCookie(name, options) {
         ...defaultOptions,
         ...options
       });
+      if (req?.cookies) {
+        req.cookies[name] = undefined;
+      }
     } else {
       res.setHeader('Set-Cookie', serialize$1(name, '', {
         ...defaultOptions,
